@@ -79,7 +79,8 @@ app.post('/google', async(req, res) => {
                     ok: true,
                     usuario: usuarioDB,
                     token: token,
-                    id: usuarioDB._id
+                    id: usuarioDB._id,
+                    menu: obtenerMenu(usuarioDB.role)
                 });
 
             }
@@ -94,13 +95,22 @@ app.post('/google', async(req, res) => {
             usuario.password = ':)';
 
             usuario.save((err, usuarioDB) => {
+
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: 'Error al crear usuario - google',
+                        errors: err
+                    });
+                }
                 var token = jwt.sign({ usuario: usuarioDB }, SEED, { expiresIn: 14400 }); // 4 horas
 
                 res.status(200).json({
                     ok: true,
                     usuario: usuarioDB,
                     token: token,
-                    id: usuarioDB._id
+                    id: usuarioDB._id,
+                    menu: obtenerMenu(usuarioDB.role)
                 });
 
             });
@@ -160,13 +170,48 @@ app.post('/', (req, res) => {
             ok: true,
             usuario: usuarioDB,
             token: token,
-            id: usuarioDB._id
+            id: usuarioDB._id,
+            menu: obtenerMenu(usuarioDB.role)
         });
 
     });
 
 
 });
+
+function obtenerMenu(ROLE) {
+
+    var menu = [{
+            titulo: 'Pricipal',
+            icono: 'mdi mdi-gauge',
+            submenu: [
+                { titulo: 'Dashboard', url: '/dashboard' },
+                { titulo: 'ProgressBar', url: '/progress' },
+                { titulo: 'Gráficas', url: '/graficas1' },
+                { titulo: 'Promesas', url: '/promesas' },
+                { titulo: 'Rxjs', url: '/rxjs' }
+            ]
+        },
+        {
+            titulo: 'Maintenance',
+            icono: 'mdi mdi-folder-lock-open',
+            submenu: [
+                // { titulo: 'Users', url: '/usuarios' },
+                { titulo: 'Hospitals', url: '/hospitales' },
+                { titulo: 'Doctors', url: '/medicos' }
+            ]
+        }
+
+
+    ];
+
+    if (ROLE === 'ADMIN_ROLE') {
+        menu[1].submenu.unshift({ titulo: 'Users', url: '/usuarios' });
+    }
+
+    return menu;
+
+}
 
 
 
