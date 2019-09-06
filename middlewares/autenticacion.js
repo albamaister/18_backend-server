@@ -47,3 +47,27 @@ exports.verificarAdmin_role = function(req, res, next) {
 
     }
 }
+
+//========================================
+// Verificar Admin o mismo usuario (MIDELWARE)
+//========================================
+
+exports.verificarAdmin_o_mismoUsuario = function(req, res, next) {
+
+
+    var usuario = req.usuario;
+    var id = req.params.id;
+
+    if (usuario.role === 'ADMIN_ROLE' || usuario._id === id) {
+        next();
+        return;
+    } else {
+
+        return res.status(401).json({
+            ok: false,
+            mensaje: 'Token incorrecto - No es administrador ni es el mismo usuario',
+            errors: { message: 'No es administrador, no puede hacer eso' }
+        });
+
+    }
+}
